@@ -47,7 +47,8 @@ def chat(messages):
     global output
     #port is often 11434, get the exact number by hitting the terminal with 'ollama serve' and copy-paste the stuff after tcp.
     #streams one token at a time by following the last parameter
-    response = requests.post("http://127.0.0.1:11434/api/chat",json={"model":selected_model,"messages":messages, "stream":True})
+    port = "http://127.0.0.1:11434/api/chat"
+    response = requests.post(port,json={"model":selected_model,"messages":messages, "stream":True})
     response.raise_for_status()
     output=""
 
