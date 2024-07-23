@@ -12,13 +12,15 @@ def recognize_speech_from_mic():
     global text
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
-        #add index according to the input device, 0 - device/default as in the settings
+        #add index according to the input device, 0 - device/default as in the device settings.
         print("Listening...")
         audio = recognizer.listen(source)
         try:
             text = recognizer.recognize_google(audio,language="en-IN")
-            #uses google's speech recognition engine so should be online else gonna return speech services down
-            print(f"Ashmil: {text}")
+            
+            #uses google's speech recognition engine so should be online else gonna return speech services down.
+            
+            print(f"User: {text}")
             return text
         except sr.UnknownValueError:
             print("I didn't quite get that")
@@ -29,27 +31,32 @@ def recognize_speech_from_mic():
             return ""
 
 def speak_text(texts):
+    #call required properties
     voices = engine.getProperty('voices')
     rate=engine.getProperty('rate')
+    #try different indices inside voices[], 0 or 1 for a male and female voice.
     engine.setProperty('voice',voices[1].id)
     r=175
+    #speech rate
     engine.setProperty('rate',r)
     engine.say(texts)
+    #run and wait for the speech to complete before proceeding
     engine.runAndWait()
 
 def chat(messages):
     global output
-    #port is often 11434, get the exact stuff by hitting the terminal with ollama serve and copy-paste the stuff after tcp.
-    #----- MODEL NAME IS HEREEEE -----
+    #port is often 11434, get the exact number by hitting the terminal with 'ollama serve' and copy-paste the stuff after tcp.
     #streams one token at a time by following the last parameter
     response = requests.post("http://127.0.0.1:11434/api/chat",json={"model":selected_model,"messages":messages, "stream":True})
     response.raise_for_status()
     output=""
 
     for line in response.iter_lines():
+        
         body=json.loads(line)
         if "error" in body:
             raise Exception(body["error"])
+            
         if body.get("done") is False:
             message=body.get("message","")
             content=message.get("content","")
@@ -77,8 +84,8 @@ def face_unlock():
     if len(face_locations)==0:
             cv2.destroyAllWindows()
             video_capture.release()
-            speak_text("Couldn't recognize Ashmil's face, retrying in a few seconds")
-            print("Couldn't recognize Ashshmil's face, retrying in a few seconds")
+            speak_text("Couldn't recognize User's face, retrying in a few seconds")
+            print("Couldn't recognize User's face, retrying in a few seconds")
             time.sleep(4)
             face_unlock()
 
@@ -88,7 +95,7 @@ def face_unlock():
 
             # If a match is found, display the frame with a rectangle around the face and text overlay
         if match[0]==False:
-            not_welcome = "I can't see you there, sir! Where is Ashmil?"
+            not_welcome = "I can't see you there, sir!"
             print(not_welcome)
             speak_text(not_welcome)
             video_capture.release()
@@ -104,12 +111,12 @@ def face_unlock():
 
                 # Display the frame
             cv2.imshow('Face Recognition', frame)
-            welcome="Hi there!!!! Ashmil!!. Good to see you."
+            welcome="Hi there! Good to see you."
             print(welcome)
             speak_text(welcome)
             cv2.waitKey(0)  # Wait for a key press to continue (or modify as per requirement)
 
-                # Release the video capture and close all OpenCV windows
+            # Release the video capture and close all OpenCV windows
             video_capture.release()
             cv2.destroyAllWindows()
 
@@ -120,6 +127,7 @@ def input_method_reciever():
 
 def model_select():
     global selected_model
+    
     selected_model=int(input("Input 1 for Alice-uncensored based on llama2. \nInput 2 for Alice-censored based on llama3. \nInput 3 for model with better coding skills but lower communication skills."))
     if selected_model==1:
         selected_model="Alice"
@@ -139,6 +147,7 @@ def main():
     face_unlock()
     model_select()
     while True:
+        
         input_method_reciever()
         if input_method.lower() == "s" :
             print("You have choosen to speak to me, get your microphone ready and wait till you see 'listening...'")
@@ -151,9 +160,10 @@ def main():
             text = input("~~~")
       
         else :
-            print("INVALID INPUT")
+            print("INVALID INPUT METHOD")
 
         if text:
+            
             if "talk to you later" in text.lower():
                 break
            
